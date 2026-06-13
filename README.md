@@ -14,6 +14,11 @@ Um das zu bewerkstelligen braucht es folgende Funktionen:
 5. Erstellen einer Tabelle mit den ganzen Daten
 (6. Split der Tabelle in Trainings und Testdaten mit vorgegebenen Split)
 
+Für den Kartenausschnitt um die Alpen würde ich folgende Koordinaten als Eckpfeiler nehmen:
+    links oben (NW): lat(48), lon(5)
+    rechts oben (NO): lat(48), lon(15)
+    rechts unten (SO): lat(43), lon(15)
+    links unten (SW): lat(43), lon(5)
 
 Wenn das alles klappt, dann folgt die Implementierung des Modells im main_code. Da hab ich mir aber bisher noch keine Gedanken gemacht.
 
