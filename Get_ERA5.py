@@ -28,6 +28,14 @@ def ensure_era5_folders_exist():
 
 
 
+#Bestimmt den Rasterpunkt einer Koordinate
+def get_era5_grid_point(lat, lon):
+    grid_lat = round(lat, 1)
+    grid_lon = round(lon, 1)
+    return grid_lat, grid_lon
+
+
+
 #erstellt filename für eine Koordinate:
 def format_coordinate_for_filename(value):
     return str(value).replace("-", "m").replace(".", "p") #macht aus 47.3 den string 47p3, wichtig für den Dateinamen
@@ -38,8 +46,10 @@ def format_coordinate_for_filename(value):
 def get_era5_file_paths(lat, lon, start_date, end_date):
     ensure_era5_folders_exist()
 
-    lat_name = format_coordinate_for_filename(round(lat, 4))
-    lon_name = format_coordinate_for_filename(round(lon, 4))
+    grid_lat, grid_lon = get_era5_grid_point(lat, lon)
+
+    lat_name = format_coordinate_for_filename(grid_lat)
+    lon_name = format_coordinate_for_filename(grid_lon)
 
     start_name = start_date.replace("-", "")
     end_name = end_date.replace("-", "")
@@ -235,6 +245,8 @@ def get_era5_timeseries_for_coordinate(
     end_date,
     save_csv=True
 ):
+    grid_lat, grid_lon = get_era5_grid_point(lat, lon)
+
     zip_file, csv_file = get_era5_file_paths(
         lat=lat,
         lon=lon,
@@ -251,8 +263,8 @@ def get_era5_timeseries_for_coordinate(
     else:
         print(f"Downloading ERA5 timeseries for lat={lat}, lon={lon}")
         download_era5_timeseries_for_coordinate(
-            lat=lat,
-            lon=lon,
+            lat=grid_lat,
+            lon=grid_lon,
             start_date=start_date,
             end_date=end_date,
             zip_file=zip_file

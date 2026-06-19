@@ -125,12 +125,11 @@ def create_alps_cmap():
 
 
 # PLOT DEM OVER ALPS
-def plot_dem(dem_file, max_pixels=1200, sea_level_threshold=0.1):
+def plot_dem(dem_file, landslides=None, max_pixels=1200, sea_level_threshold=0.1):
     alps_cmap = create_alps_cmap()
 
     with rasterio.open(dem_file) as src:
 
-        # Downsampling-Faktor bestimmen
         scale = max(src.width / max_pixels, src.height / max_pixels, 1)
 
         out_height = int(src.height / scale)
@@ -147,16 +146,13 @@ def plot_dem(dem_file, max_pixels=1200, sea_level_threshold=0.1):
 
         bounds = src.bounds
 
-        # Meer/Wasser: alles <= 0.1 m
         sea_mask = elevation <= sea_level_threshold
 
-        # Landdaten: Wasser ausblenden
         land = elevation.copy()
         land[sea_mask] = np.nan
 
         plt.figure(figsize=(10, 6))
 
-        # Erst Land plotten
         plt.imshow(
             land,
             extent=[bounds.left, bounds.right, bounds.bottom, bounds.top],
@@ -168,9 +164,7 @@ def plot_dem(dem_file, max_pixels=1200, sea_level_threshold=0.1):
 
         plt.colorbar(label="Elevation [m]")
 
-        # Dann Meer als eigene blaue Maske darüberlegen
         sea_layer = np.where(sea_mask, 1, np.nan)
-
         sea_cmap = ListedColormap(["deepskyblue"])
 
         plt.imshow(
@@ -182,7 +176,27 @@ def plot_dem(dem_file, max_pixels=1200, sea_level_threshold=0.1):
         )
 
         sea_patch = mpatches.Patch(color="deepskyblue", label="Sea / ≤ 0.1 m")
-        plt.legend(handles=[sea_patch], loc="lower right")
+
+        if landslides is not None:
+            positive_landslides = landslides.copy()
+
+            if "landslide" in positive_landslides.columns:
+                positive_landslides = positive_landslides[
+                    positive_landslides["landslide"] == 1
+                ]
+
+            plt.scatter(
+                positive_landslides["longitude"],
+                positive_landslides["latitude"],
+                marker="x",
+                s=30,
+                c="red",
+                label="Landslides"
+            )
+
+            plt.legend(loc="lower right")
+        else:
+            plt.legend(handles=[sea_patch], loc="lower right")
 
         plt.xlabel("Longitude")
         plt.ylabel("Latitude")

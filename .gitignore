@@ -1,0 +1,4 @@
+*.tif
+*.nc
+*.zip
+era5_timeseries/
